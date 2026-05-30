@@ -1,0 +1,6 @@
+path: /content/RDD2022_small
+train: train/images
+val: val/images
+
+nc: 4
+names: ['longitudinal_crack', 'transverse_crack', 'alligator_crack', 'pothole']
