@@ -71,7 +71,6 @@ export default function ImageUpload({ onFileSelected, disabled = false }) {
           ref={inputRef}
           type="file"
           accept="image/*"
-          capture="environment"
           onChange={handleChange}
           className="hidden"
           disabled={disabled}

@@ -1,7 +1,4 @@
-"""
-FastAPI backend for SHP — Road Damage Detection & Severity Index.
-Serves YOLOv8 inference and severity calculation via REST endpoints.
-"""
+
 
 import io
 import base64
@@ -13,7 +10,7 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 
-# ── Constants ────────────────────────────────────────────────────────────────
+# Constants 
 
 CLASS_NAMES = {0: "Longitudinal Crack", 1: "Transverse Crack", 2: "Alligator Crack", 3: "Pothole"}
 CLASS_WEIGHTS = {0: 0.5, 1: 0.3, 2: 0.8, 3: 1.0}
@@ -33,7 +30,7 @@ GRADE_THRESHOLDS = [
 
 WEIGHTS_PATH = Path(__file__).parent / "model" / "weights" / "best.pt"
 
-# ── App setup ────────────────────────────────────────────────────────────────
+# App setup 
 
 app = FastAPI(title="SHP API", version="1.0.0")
 
@@ -45,11 +42,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Load model once at startup
 model = YOLO(str(WEIGHTS_PATH))
 
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# Helpers 
 
 def grade_severity(si: float) -> str:
     for threshold, label in GRADE_THRESHOLDS:
@@ -131,7 +127,7 @@ def _run_inference(img: np.ndarray):
     return detections, severity_index, grade, class_counts, frame_area
 
 
-# ── Endpoints ────────────────────────────────────────────────────────────────
+# Endpoints 
 
 @app.get("/api/health")
 async def health():
@@ -177,4 +173,34 @@ async def severity(file: UploadFile = File(...)):
         "frame_area": frame_area,
         "image_width": img.shape[1],
         "image_height": img.shape[0],
+    }
+
+
+@app.post("/api/repair-plan")
+async def repair_plan(file: UploadFile = File(...)):
+ 
+    from repair_planner import AStarRepairPlanner, build_segments_from_detections
+
+    contents = await file.read()
+    img = _read_image(contents)
+
+
+    detections, si, grade, class_counts, frame_area = _run_inference(img)
+    annotated = _annotate_image(img, detections)
+
+    segments = build_segments_from_detections(detections, si)
+    planner = AStarRepairPlanner(segments)
+    plan = planner.plan()
+
+    return {
+        "image": _image_to_base64(annotated),
+        "detections": detections,
+        "class_counts": class_counts,
+        "total_detections": len(detections),
+        "severity_index": round(si, 5),
+        "grade": grade,
+        "frame_area": frame_area,
+        "image_width": img.shape[1],
+        "image_height": img.shape[0],
+        "repair_plan": plan,
     }

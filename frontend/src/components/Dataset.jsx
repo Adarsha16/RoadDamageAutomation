@@ -7,9 +7,8 @@ export default function Dataset() {
     <section
       id="dataset"
       ref={ref}
-      className={`py-24 lg:py-32 border-t border-border/50 transition-all duration-700 ${
-        inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
-      }`}
+      className={`py-24 lg:py-32 border-t border-border/50 transition-all duration-700 ${inView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'
+        }`}
     >
       <div className="site-container">
         <p className="text-sm font-medium text-accent uppercase tracking-widest mb-6">
@@ -28,17 +27,13 @@ export default function Dataset() {
               </h3>
               <div className="space-y-4 text-base text-text-secondary leading-relaxed mb-8">
                 <p>
-                  The Road Damage Dataset 2022 was released as part of the
+                  We used the Road Damage Dataset 2022 which was released as part of the
                   Crowdsensing-based Road Damage Detection Challenge (CRDDC&rsquo;22).
-                  It contains 47,420 road images collected across six countries —
-                  Japan, India, Czech Republic, Norway, the United States, and China
-                  — with over 55,000 bounding-box annotations covering four damage
-                  categories.
+
                 </p>
                 <p>
                   We use the official train/test split and augment the training
-                  partition with Albumentations (mosaic tiling, HSV jitter, horizontal
-                  flip, and simulated weather) to improve generalisation across
+                  partition with Albumentations to improve generalisation across
                   varying road surfaces, lighting conditions, and camera angles.
                 </p>
               </div>

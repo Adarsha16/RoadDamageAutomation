@@ -25,6 +25,12 @@ const cards = [
     detail: 'The map currently displays six waypoints along the Suryabinayak–Dhulikhel corridor, each tagged with a severity score and category. The visualisation is embedded directly into the severity analysis page and will scale to additional routes as local survey data grows.',
     status: 'Completed',
   },
+  {
+    title: 'AI Repair Planning Agent',
+    body: 'An A* search-based AI agent was built to bridge neural-network perception with symbolic planning. The agent formulates repair scheduling as a state-space search problem: each state represents the current condition of road segments, and actions correspond to repair operations (patch & fill, crack sealing, surface overlay).',
+    detail: 'The cost function g(n) captures real repair expenditure (base cost × severity × area × traffic importance), while the admissible heuristic h(n) sums minimum remaining repair costs. Since h(n) never overestimates, A* guarantees an optimal repair sequence. The planner runs in under 5 ms for typical damage counts and outputs a prioritised schedule with per-step cost estimates.',
+    status: 'Completed',
+  },
 ];
 
 export default function Approach() {
@@ -47,8 +53,9 @@ export default function Approach() {
         </h2>
         <p className="text-base text-text-secondary leading-relaxed max-w-2xl mb-12">
           Each phase was validated before moving to the next. The detection model,
-          severity formula, and mapping pipeline are now integrated into a single
-          end-to-end workflow accessible through this application.
+          severity formula, mapping pipeline, and AI repair planner are now
+          integrated into a single end-to-end workflow — combining neural-network
+          perception with symbolic AI planning.
         </p>
 
         <div className="space-y-6">

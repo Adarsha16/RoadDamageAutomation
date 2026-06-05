@@ -16,6 +16,7 @@ export default function Footer() {
             {!isHome && <Link to="/" className="hover:text-text-primary transition-colors">Home</Link>}
             <Link to="/detect" className="hover:text-text-primary transition-colors">Detection</Link>
             <Link to="/severity" className="hover:text-text-primary transition-colors">Severity</Link>
+            <Link to="/repair-plan" className="hover:text-text-primary transition-colors">Repair Plan</Link>
             <span>© {new Date().getFullYear()}</span>
           </div>
         </div>

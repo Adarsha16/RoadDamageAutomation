@@ -1,10 +1,8 @@
-# road-damage-detection/model/predict_sample.py
 from ultralytics import YOLO
 
-# Load the local best.pt weights
 model = YOLO('weights/best.pt')
 
-# Replace this with the path to any local test image you have
+
 results = model('path_to_sample_image.jpg')
 
 for r in results:

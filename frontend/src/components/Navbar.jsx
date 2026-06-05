@@ -56,6 +56,12 @@ export default function Navbar() {
               >
                 Severity
               </Link>
+              <Link
+                to="/repair-plan"
+                className="text-sm text-accent hover:text-accent-hover transition-colors"
+              >
+                Repair Plan
+              </Link>
             </div>
 
             <button
@@ -101,6 +107,13 @@ export default function Navbar() {
               className="block py-1.5 text-sm text-accent"
             >
               Severity
+            </Link>
+            <Link
+              to="/repair-plan"
+              onClick={() => setOpen(false)}
+              className="block py-1.5 text-sm text-accent"
+            >
+              Repair Plan
             </Link>
           </div>
         </div>
