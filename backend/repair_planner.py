@@ -50,25 +50,24 @@ def _grade(si: float) -> str:
 class RoadSegment:
     """A single damaged road segment produced by the perception layer."""
     id: int
-    damage_type: str          # e.g. "Pothole"
-    severity: float           # 0-1 normalised severity score
-    confidence: float         # model confidence
-    relative_area: float      # bbox area / frame area
-    bbox: Tuple[float, ...]   # (x1, y1, x2, y2)
-    traffic_importance: float = 1.0  # configurable per-segment
+    damage_type: str          
+    severity: float           
+    confidence: float         
+    relative_area: float      
+    bbox: Tuple[float, ...]  
+    traffic_importance: float = 1.0  
 
 
 @dataclass
 class RepairAction:
-    """A concrete repair operation targeting one segment."""
     segment_id: int
     segment_damage_type: str
     action_name: str
     description: str
-    cost: float               # computed cost
+    cost: float              
     estimated_hours: float
     severity: float
-    priority_score: float     # higher = more urgent
+    priority_score: float     
 
 
 @dataclass(order=True)
@@ -81,7 +80,7 @@ class _SearchNode:
     counter: int = field(compare=False)       # tie-breaker
 
 
-# ── Planner ──────────────────────────────────────────────────────────────────
+# Planner 
 
 class AStarRepairPlanner:
     """
@@ -95,7 +94,7 @@ class AStarRepairPlanner:
         for s in segments:
             self._min_costs[s.id] = self._repair_cost(s)
 
-    # ── cost helpers ──────────────────────────────────────────────────────
+    # cost helpers 
 
     @staticmethod
     def _repair_cost(seg: RoadSegment) -> float:
@@ -110,15 +109,14 @@ class AStarRepairPlanner:
     def _heuristic(self, repaired: frozenset) -> float:
         """
         Admissible heuristic: sum of minimum repair costs for all unrepaired
-        segments.  Never overestimates because each segment must be repaired
-        at least once, and we use its actual minimum cost.
+        segments.  
         """
         return sum(
             cost for sid, cost in self._min_costs.items()
             if sid not in repaired
         )
 
-    # ── A* search  
+    #  A* search  
 
     def plan(self) -> Dict:
     
@@ -197,7 +195,7 @@ class AStarRepairPlanner:
                 cumulative_cost += cost
                 cumulative_hours += hours
 
-                # Priority score (for display): higher = was more urgent
+                # Priority score 
                 priority = seg.severity * seg.traffic_importance * (1 + seg.confidence)
 
                 steps.append({
@@ -226,7 +224,7 @@ class AStarRepairPlanner:
         }
 
 
-# Bridge: detection dicts → RoadSegment objects 
+# detection dicts → RoadSegment objects 
 
 def build_segments_from_detections(
     detections: List[Dict],

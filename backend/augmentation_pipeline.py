@@ -7,20 +7,12 @@ from torch.utils.data import Dataset
 import albumentations as A
 
 def get_train_transforms(img_size=640):
-    """
-    Returns an Albumentations pipeline designed to simulate tricky conditions
-    like rainy, overcast, and night-time environments, alongside geometric transforms.
-    Ensures YOLO bounding boxes are properly adjusted or dropped if they fall outside.
-    """
+   
     return A.Compose(
         [
-            # Applied geometric transforms
             A.HorizontalFlip(p=0.5),
-            # Applied rotation ±15°. border_mode=0 meaning black border
             A.Rotate(limit=15, p=0.5, border_mode=cv2.BORDER_CONSTANT, fill=0),
             
-            # Applied weather & lighting transforms
-            # We use A.OneOf to apply one of these distinct environmental conditions
             A.OneOf([
                 # Rain Simulation
                 A.RandomRain(
@@ -58,11 +50,7 @@ def get_train_transforms(img_size=640):
     )
 
 class RoadDamageDataset(Dataset):
-    """
-    PyTorch Dataset handling YOLO format bounding boxes and Mosaic augmentation.
-    Mosaic cannot be implemented as a simple single-image transform in Albumentations,
-    so it's built into the dataset loading logic.
-    """
+
     def __init__(self, img_dir, label_dir, img_size=640, mosaic_prob=0.5, transforms=None):
         self.img_dir = img_dir
         self.label_dir = label_dir
@@ -117,7 +105,6 @@ class RoadDamageDataset(Dataset):
         img4 = np.full((s * 2, s * 2, 3), 114, dtype=np.uint8)  # base image with gray background
         
         for i, idx in enumerate(indices):
-            # Load image
             img, bboxes, class_labels = self.load_image_and_labels(idx)
             h, w, _ = img.shape
             
@@ -147,7 +134,6 @@ class RoadDamageDataset(Dataset):
             # Process Labels
             if len(bboxes) > 0:
                 for bbox, cls_id in zip(bboxes, class_labels):
-                    # Bbox is YOLO format (normalized relative to original image size)
                     # Convert to absolute coordinates of the small resized image
                     b_x_center = bbox[0] * w
                     b_y_center = bbox[1] * h
@@ -210,19 +196,15 @@ class RoadDamageDataset(Dataset):
             # Resize standard images to match target shape
             img = cv2.resize(img, (self.img_size, self.img_size))
             
-        # 2. Apply Albumentations Transforms (Rain, Overcast, Night, Rotate, Flip, etc.)
+        # 2. Apply Albumentations Transforms
         if self.transforms:
             transformed = self.transforms(image=img, bboxes=bboxes, class_labels=class_labels)
             img = transformed['image']
             bboxes = transformed['bboxes']
             class_labels = transformed['class_labels']
             
-        # Optional: Convert to torch tensors if pushing straight to DataLoader
-        # img = torch.from_numpy(img.transpose(2, 0, 1)).float() / 255.0
-        
         return img, bboxes, class_labels
 
-# Example usage
 if __name__ == "__main__":
     transforms = get_train_transforms()
     print("Albumentations pipeline configured successfully.")
@@ -231,7 +213,7 @@ if __name__ == "__main__":
     img_dir = "RDD_SPLIT/train/images"
     label_dir = "RDD_SPLIT/train/labels"
     
-    # Check if dataset exists before running
+    # Check 
     if os.path.exists(img_dir) and os.path.exists(label_dir):
         dataset = RoadDamageDataset(img_dir=img_dir, label_dir=label_dir, transforms=transforms)
         
@@ -242,11 +224,9 @@ if __name__ == "__main__":
             idx = random.randint(0, len(dataset)-1)
             img, bboxes, labels = dataset[idx]
             
-            # Dataset returns RGB, convert to BGR for cv2 saving
             img_bgr = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             h, w, _ = img_bgr.shape
             
-            # Draw bounding boxes
             for bbox, label in zip(bboxes, labels):
                 x_c, y_c, bw, bh = bbox
                 xmin = int((x_c - bw / 2) * w)
