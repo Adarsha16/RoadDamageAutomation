@@ -1,8 +1,8 @@
-# 🛣️ Smart Highway Patrol (SHP)
+
 
 **Automated road damage detection and intelligent repair planning powered by YOLOv8 and A\* search.**
 
-SHP is a full-stack application that detects road surface defects from images, computes a composite Severity Index, visualises damage along surveyed routes, and generates optimal repair plans using AI search — all through an interactive web interface.
+This is a full-stack application that detects road surface defects from images, computes a composite Severity Index, visualises damage along surveyed routes, and generates optimal repair plans using AI search — all through an interactive web interface.
 
 > Built to address Nepal's road maintenance challenges, where 28,000+ km of road network face accelerated deterioration each monsoon season with less than 5% inspected annually.
 
@@ -72,7 +72,7 @@ RoadDamageAutomation/
 
 ---
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -121,7 +121,7 @@ The frontend dev server runs at `http://localhost:5173` and proxies API requests
 
 ---
 
-## 📡 API Reference
+## API Reference
 
 All endpoints accept multipart file uploads.
 
@@ -210,7 +210,7 @@ Returns detection and severity fields plus:
 
 ---
 
-## 🧠 How It Works
+##  How It Works
 
 ### Severity Index
 
@@ -268,7 +268,7 @@ The training pipeline uses Albumentations with:
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|-----------|
@@ -288,9 +288,9 @@ The training pipeline uses Albumentations with:
 
 The severity map plots damage severity along surveyed road segments using Folium and OSRM routing. The current prototype covers the **Suryabinayak – Dhulikhel corridor** with six waypoints, each colour-coded by severity:
 
-- 🟢 **Green** — Low severity (< 0.3)
-- 🟠 **Orange** — Moderate severity (0.3 – 0.7)
-- 🔴 **Red** — High severity (> 0.7)
+- **Green** — Low severity (< 0.3)
+- **Orange** — Moderate severity (0.3 – 0.7)
+- **Red** — High severity (> 0.7)
 
 To regenerate the map:
 ```bash
@@ -300,7 +300,7 @@ python severity_map.py
 
 ---
 
-## 📦 Data Pipeline Scripts
+## Data Pipeline Scripts
 
 ### Dataset Audit
 
@@ -329,13 +329,7 @@ python augmentation_pipeline.py
 
 ---
 
-## 📄 License
-
-This project is for academic and research purposes.
-
----
-
-## 🙏 Acknowledgements
+## Acknowledgements
 
 - [RDD2022 Dataset](https://github.com/sekilab/RoadDamageDetector) — Crowdsensing-based Road Damage Detection Challenge
 - [Ultralytics YOLOv8](https://github.com/ultralytics/ultralytics) — Object detection framework
