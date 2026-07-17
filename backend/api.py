@@ -1,5 +1,3 @@
-
-
 import io
 import base64
 from pathlib import Path
@@ -10,27 +8,32 @@ from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from ultralytics import YOLO
 
-# Constants 
+# Constants
 
-CLASS_NAMES = {0: "Longitudinal Crack", 1: "Transverse Crack", 2: "Alligator Crack", 3: "Pothole"}
+CLASS_NAMES = {
+    0: "Longitudinal Crack",
+    1: "Transverse Crack",
+    2: "Alligator Crack",
+    3: "Pothole",
+}
 CLASS_WEIGHTS = {0: 0.5, 1: 0.3, 2: 0.8, 3: 1.0}
 BBOX_COLORS = {
-    0: (52, 152, 219),   # blue
-    1: (46, 204, 191),   # teal
-    2: (230, 126, 34),   # orange
-    3: (231, 76, 60),    # red
+    0: (52, 152, 219),  # blue
+    1: (46, 204, 191),  # teal
+    2: (230, 126, 34),  # orange
+    3: (231, 76, 60),  # red
 }
 
 GRADE_THRESHOLDS = [
     (0.005, "Good"),
-    (0.02,  "Fair"),
-    (0.05,  "Poor"),
+    (0.02, "Fair"),
+    (0.05, "Poor"),
     (float("inf"), "Critical"),
 ]
 
 WEIGHTS_PATH = Path(__file__).parent / "model" / "weights" / "best.pt"
 
-# App setup 
+# App setup
 
 app = FastAPI(title="SHP API", version="1.0.0")
 
@@ -45,7 +48,8 @@ app.add_middleware(
 model = YOLO(str(WEIGHTS_PATH))
 
 
-# Helpers 
+# Helpers
+
 
 def grade_severity(si: float) -> str:
     for threshold, label in GRADE_THRESHOLDS:
@@ -70,11 +74,19 @@ def _annotate_image(img: np.ndarray, detections: list) -> np.ndarray:
         color = BBOX_COLORS.get(cid, (255, 255, 255))
         # BGR for OpenCV
         cv2.rectangle(annotated, (x1, y1), (x2, y2), color, 2)
-        label = f'{d["class_name"]} {d["confidence"]:.0%}'
+        label = f"{d['class_name']} {d['confidence']:.0%}"
         (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
         cv2.rectangle(annotated, (x1, y1 - th - 8), (x1 + tw + 4, y1), color, -1)
-        cv2.putText(annotated, label, (x1 + 2, y1 - 4),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1, cv2.LINE_AA)
+        cv2.putText(
+            annotated,
+            label,
+            (x1 + 2, y1 - 4),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (255, 255, 255),
+            1,
+            cv2.LINE_AA,
+        )
     return annotated
 
 
@@ -85,7 +97,6 @@ def _image_to_base64(img: np.ndarray) -> str:
 
 
 def _run_inference(img: np.ndarray):
-    """Run YOLO inference and return detections list + results object."""
     h, w = img.shape[:2]
     frame_area = w * h
     results = model(img, verbose=False)
@@ -103,16 +114,18 @@ def _run_inference(img: np.ndarray):
             weight = CLASS_WEIGHTS.get(cid, 0.1)
             contribution = weight * conf * relative_area
 
-            detections.append({
-                "class_id": cid,
-                "class_name": CLASS_NAMES.get(cid, f"Unknown({cid})"),
-                "confidence": round(conf, 4),
-                "bbox": [round(x1, 1), round(y1, 1), round(x2, 1), round(y2, 1)],
-                "bbox_area": round(bbox_area, 1),
-                "relative_area": round(relative_area, 6),
-                "weight": weight,
-                "contribution": round(contribution, 6),
-            })
+            detections.append(
+                {
+                    "class_id": cid,
+                    "class_name": CLASS_NAMES.get(cid, f"Unknown({cid})"),
+                    "confidence": round(conf, 4),
+                    "bbox": [round(x1, 1), round(y1, 1), round(x2, 1), round(y2, 1)],
+                    "bbox_area": round(bbox_area, 1),
+                    "relative_area": round(relative_area, 6),
+                    "weight": weight,
+                    "contribution": round(contribution, 6),
+                }
+            )
 
     severity_index = sum(d["contribution"] for d in detections)
     grade = grade_severity(severity_index)
@@ -127,7 +140,8 @@ def _run_inference(img: np.ndarray):
     return detections, severity_index, grade, class_counts, frame_area
 
 
-# Endpoints 
+# Endpoints
+
 
 @app.get("/api/health")
 async def health():
@@ -178,12 +192,11 @@ async def severity(file: UploadFile = File(...)):
 
 @app.post("/api/repair-plan")
 async def repair_plan(file: UploadFile = File(...)):
- 
+
     from repair_planner import AStarRepairPlanner, build_segments_from_detections
 
     contents = await file.read()
     img = _read_image(contents)
-
 
     detections, si, grade, class_counts, frame_area = _run_inference(img)
     annotated = _annotate_image(img, detections)
